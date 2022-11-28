@@ -28,7 +28,7 @@ export const tempRouter = router({
     }),
     getSecretTemps: protectedProcedure
         .query(async ({ ctx }) => {
-            const julianData = await axios.get(`${sensors.julian.ip}:${sensorPorts}/temp`);
+            const julianData = await axios.get(`${sensors.RaspPi4.ip}:${sensorPorts}/temp`);
             return { julian: julianData.data };
         }),
 });
