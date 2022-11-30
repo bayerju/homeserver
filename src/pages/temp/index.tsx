@@ -28,7 +28,7 @@ const SensorComponent = (props: PropTypes) => {
                 <tbody>
                     <tr>
                         <td>{props.sensorData.room}</td>
-                        <td>{props.sensorData.temperature}</td>
+                        <td>{Math.round(props.sensorData.temperature)}</td>
                         <td>{Math.round(props.sensorData.humidity)}</td>
                     </tr>
                 </tbody>
