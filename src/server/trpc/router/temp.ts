@@ -17,7 +17,12 @@ const sensors = {
         id: 2,
         location: "livingroom",
         url: "http://192.168.178.38:80/temp",
-    }
+    },
+    ESP32: {
+        id: 3,
+        location: "ersatz",
+        url: "http://192.168.178.38:80/temp",
+    },
 }
 
 const sensorPorts = "3002"
@@ -39,6 +44,7 @@ export const tempRouter = router({
     getTemps: publicProcedure.query(async ({ ctx }) => {
         const kitchenData: AxiosResponse<ResponseData> = await axios.get(sensors.raspZero.url);
         const livingRoomData: AxiosResponse<ResponseData> = await axios.get(sensors.nodeMCU.url);
+        const ersatzData: AxiosResponse<ResponseData> = await axios.get(sensors.ESP32.url);
         console.log(kitchenData.data);
         const response = {
             kitchen: {
@@ -51,6 +57,11 @@ export const tempRouter = router({
                 temperature: livingRoomData.data.response.temperature,
                 humidity: livingRoomData.data.response.humidity,
             },
+            ersatz: {
+                room: "ersatz",
+                temperature: ersatzData.data.response.temperature,
+                humidity: ersatzData.data.response.humidity,
+            }
         }
         // //get current weather in Kiel
         // const currentWeather = await axios.get("https://api.openweathermap.org/data/2.5/weather?q=Kiel&appid=2b3e1b1b1b1b1b1b1b1b1b1b1b1b1b1b&units=metric")
