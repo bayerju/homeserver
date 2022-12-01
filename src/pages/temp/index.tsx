@@ -66,9 +66,8 @@ const Temp = () => {
         <div>
             <h1 className="">Temp</h1>
             <div className='flex '>
-                {tempData.isLoading || tempDataSecret.isLoading ? <div>Loading...</div> : map(data, (sensorData) => {
-                    console.log(data)
-                    return (
+                {tempData.isLoading || tempDataSecret.isLoading ? <div>Loading...</div> :
+                    (
                         <SensorsTable >
                             {map(data, (sensorData) => {
                                 return (
@@ -76,8 +75,7 @@ const Temp = () => {
                                 )
                             })}
                         </SensorsTable>
-                    )
-                })}
+                    )}
             </div>
         </div>
     );

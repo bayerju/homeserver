@@ -25,8 +25,6 @@ const sensors = {
     },
 }
 
-const sensorPorts = "3002"
-
 const options = {
     method: 'GET',
     url: 'http://raspberrypi:3002/temp',
@@ -49,18 +47,18 @@ export const tempRouter = router({
         const response = {
             kitchen: {
                 room: "kitchen",
-                temperature: kitchenData.data.response.temperature,
-                humidity: kitchenData.data.response.humidity,
+                temperature: kitchenData.data?.response.temperature,
+                humidity: kitchenData.data?.response.humidity,
             },
             livingRoom: {
                 room: "livingRoom",
-                temperature: livingRoomData.data.response.temperature,
-                humidity: livingRoomData.data.response.humidity,
+                temperature: livingRoomData.data?.response.temperature,
+                humidity: livingRoomData.data?.response.humidity,
             },
             ersatz: {
                 room: "ersatz",
-                temperature: ersatzData.data.response.temperature,
-                humidity: ersatzData.data.response.humidity,
+                temperature: ersatzData.data?.response.temperature,
+                humidity: ersatzData.data?.response.humidity,
             }
         }
         // //get current weather in Kiel
