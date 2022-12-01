@@ -21,7 +21,7 @@ const sensors = {
     ESP32: {
         id: 3,
         location: "ersatz",
-        url: "http://192.168.178.38:80/temp",
+        url: "http://192.168.178.40:80/temp",
     },
 }
 
