@@ -12,6 +12,11 @@ const sensors = {
         id: 0,
         location: "julian",
         url: "http://raspberrypi:3002/temp" // "192.168.178.32"
+    },
+    nodeMCU: {
+        id: 2,
+        location: "livingroom",
+        url: "http://192.168.178.38:80/temp",
     }
 }
 
@@ -33,10 +38,23 @@ interface ResponseData {
 export const tempRouter = router({
     getTemps: publicProcedure.query(async ({ ctx }) => {
         const kitchenData: AxiosResponse<ResponseData> = await axios.get(sensors.raspZero.url);
+        const livingRoomData: AxiosResponse<ResponseData> = await axios.get(sensors.nodeMCU.url);
         console.log(kitchenData.data);
+        const response = {
+            kitchen: {
+                room: "kitchen",
+                temperature: kitchenData.data.response.temperature,
+                humidity: kitchenData.data.response.humidity,
+            },
+            livingRoom: {
+                room: "livingRoom",
+                temperature: livingRoomData.data.response.temperature,
+                humidity: livingRoomData.data.response.humidity,
+            },
+        }
         // //get current weather in Kiel
         // const currentWeather = await axios.get("https://api.openweathermap.org/data/2.5/weather?q=Kiel&appid=2b3e1b1b1b1b1b1b1b1b1b1b1b1b1b1b&units=metric")
-        return { room: "kitchen", temperature: kitchenData.data.response.temperature, humidity: kitchenData.data.response.humidity };
+        return response;
         // return { kitchen: 20, currentWeather: 20 };
     }),
     getSecretTemps: protectedProcedure
