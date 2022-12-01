@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { trpc } from '../../utils/trpc';
 import map from 'lodash/map';
-// import css modules
+
 import styles from './style.module.scss';
 import React from 'react';
 
@@ -24,13 +24,26 @@ const SensorDataComponent = (props: PropTypes) => {
     )
 }
 
+interface ButtonProps {
+    refresh: () => void;
+}
+const Button = ({ refresh }: ButtonProps) => {
+    return (
+        <button
+            onClick={() => { refresh() }}
+            className={styles['refresh-button']}
+        >
+            Refresh
+        </button>
+    );
+}
+
 interface Props {
     children: React.ReactNode;
 }
 const SensorsTable = ({ children }: Props) => {
     return (
         <div>
-            <h1 className="">Sensor</h1>
             <table className={styles.sensortable}>
                 <thead>
                     <tr>
@@ -54,7 +67,7 @@ const Temp = () => {
 
     const session = useSession();
     const tempData = trpc.temp.getTemps.useQuery();
-    const tempDataSecret = session.status === 'authenticated' ? trpc.temp.getSecretTemps.useQuery() : trpc.temp.getTemps.useQuery();
+    // const tempDataSecret = session.status === 'authenticated' ? trpc.temp.getSecretTemps.useQuery() : trpc.temp.getTemps.useQuery();
 
     const data: SensorData[] = []
     if (tempData.data) {
@@ -64,9 +77,8 @@ const Temp = () => {
     }
     return (
         <div>
-            <h1 className="">Temp</h1>
             <div className='flex '>
-                {tempData.isLoading || tempDataSecret.isLoading ? <div>Loading...</div> :
+                {tempData.isLoading ? <div>Loading...</div> :
                     (
                         <SensorsTable >
                             {map(data, (sensorData) => {
@@ -76,7 +88,9 @@ const Temp = () => {
                             })}
                         </SensorsTable>
                     )}
+
             </div>
+            <Button refresh={() => { tempData.refetch() }} />
         </div>
     );
 };
