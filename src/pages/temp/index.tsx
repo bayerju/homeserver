@@ -26,12 +26,13 @@ const SensorDataComponent = (props: PropTypes) => {
 
 interface ButtonProps {
     refresh: () => void;
+    isFetching?: boolean;
 }
-const Button = ({ refresh }: ButtonProps) => {
+const Button = ({ refresh, isFetching }: ButtonProps) => {
     return (
         <button
             onClick={() => { refresh() }}
-            className={styles['refresh-button']}
+            className={styles['refresh-button'] + ' ' + (isFetching ? styles['refresh-button--loading'] : '')}
         >
             Refresh
         </button>
@@ -65,7 +66,6 @@ const SensorsTable = ({ children }: Props) => {
 
 const Temp = () => {
 
-    const session = useSession();
     const tempData = trpc.temp.getTemps.useQuery();
     // const tempDataSecret = session.status === 'authenticated' ? trpc.temp.getSecretTemps.useQuery() : trpc.temp.getTemps.useQuery();
 
@@ -83,14 +83,18 @@ const Temp = () => {
                         <SensorsTable >
                             {map(data, (sensorData) => {
                                 return (
-                                    <SensorDataComponent sensorData={sensorData} />
+                                    <SensorDataComponent sensorData={sensorData} key={sensorData.room} />
                                 )
                             })}
                         </SensorsTable>
                     )}
 
             </div>
-            <Button refresh={() => { tempData.refetch() }} />
+            <Button refresh={() => {
+                tempData.refetch();
+            }}
+                isFetching={tempData.isFetching}
+            />
         </div>
     );
 };

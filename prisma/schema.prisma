@@ -17,18 +17,10 @@ model Example {
 }
 
 model watched {
-  id          Int   @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   lastwatched DateTime @updatedAt
-  link        String @unique
+  link        String   @unique
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  password  String?
-  name      String?
-  validationKey String?
-}
+

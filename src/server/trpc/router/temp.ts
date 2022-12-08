@@ -1,6 +1,7 @@
-import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { router, publicProcedure } from "../trpc";
 import { z } from "zod";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
+import { map, orderBy } from "lodash";
 
 const sensors = {
     raspZero: {
@@ -25,56 +26,39 @@ const sensors = {
     },
 }
 
-const options = {
-    method: 'GET',
-    url: 'http://raspberrypi:3002/temp',
-    headers: { Accept: '*/*', 'User-Agent': 'Thunder Client (https://www.thunderclient.com)' }
-};
-
 interface ResponseData {
-    response: {
+    room: string,
         temperature: number,
         humidity: number,
-    }
+}
+
+async function getTemps(isJulian: boolean) {
+    const response: ResponseData[] = []
+    await Promise.all(map(sensors, async (iSensor) => {
+        if (iSensor.location === "julian" && !isJulian) return;
+        await axios.get(iSensor.url).then((res) => {
+            response.push({
+                room: iSensor.location,
+                temperature: res.data?.response.temperature,
+                humidity: res.data?.response.humidity,
+            });
+        })
+            .catch((err) => {
+                response.push({
+                    room: iSensor.location,
+                    temperature: 0,
+                    humidity: 0,
+                });
+                console.error(err);
+            });
+    }))
+
+    return response;
 }
 
 export const tempRouter = router({
     getTemps: publicProcedure.query(async ({ ctx }) => {
-        const kitchenData: AxiosResponse<ResponseData> = await axios.get(sensors.raspZero.url);
-        const livingRoomData: AxiosResponse<ResponseData> = await axios.get(sensors.nodeMCU.url);
-        const ersatzData: AxiosResponse<ResponseData> = await axios.get(sensors.ESP32.url);
-        console.log(kitchenData.data);
-        const response = {
-            kitchen: {
-                room: "kitchen",
-                temperature: kitchenData.data?.response.temperature,
-                humidity: kitchenData.data?.response.humidity,
-            },
-            livingRoom: {
-                room: "livingRoom",
-                temperature: livingRoomData.data?.response.temperature,
-                humidity: livingRoomData.data?.response.humidity,
-            },
-            ersatz: {
-                room: "ersatz",
-                temperature: ersatzData.data?.response.temperature,
-                humidity: ersatzData.data?.response.humidity,
-            }
-        }
-        // //get current weather in Kiel
-        // const currentWeather = await axios.get("https://api.openweathermap.org/data/2.5/weather?q=Kiel&appid=2b3e1b1b1b1b1b1b1b1b1b1b1b1b1b1b&units=metric")
-        return response;
-        // return { kitchen: 20, currentWeather: 20 };
+        const temps = await getTemps(ctx.session?.user?.name === "bayerju");
+        return orderBy(temps, ["room"], ["asc"]);
     }),
-    getSecretTemps: protectedProcedure
-        .query(async ({ ctx }) => {
-            axios.request(options).then(function (response) {
-                console.log(response.data);
-            }).catch(function (error) {
-                console.error(error);
-            });
-            //     const julianData = await axios.get(`${sensors.RaspPi4.ip}:${sensorPorts}/temp`);
-            //     return { julian: julianData.data };
-
-        }),
 });
